@@ -26,13 +26,13 @@ export const categories = [
   {
     id: 5,
     name: "Screen Protectors",
-    image: "/images/categories/screen protector.webp",
+    image: "/images/categories/Screen-protector.webp",
     products: 110,
   },
   {
     id: 6,
     name: "Smart Watches",
-    image: "/images/categories/smart watch.webp",
+    image: "/images/categories/Smart-watch.webp",
     products: 45,
   },
 ];
