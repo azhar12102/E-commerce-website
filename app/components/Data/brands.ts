@@ -7,12 +7,12 @@ export const brands = [
   {
     id: 2,
     name: "Samsung",
-    logo: "/images/brands/samsung.avif",
+    logo: "/images/brands/Samsung.avif",
   },
   {
     id: 3,
     name: "Anker",
-    logo: "/images/brands/anker.jpg",
+    logo: "/images/brands/Anker.jpg",
   },
   {
     id: 4,
@@ -22,7 +22,7 @@ export const brands = [
   {
     id: 5,
     name: "UGREEN",
-    logo: "/images/brands/ugreen-logo.jpg",
+    logo: "/images/brands/UGREEN-logo.jpg",
   },
   {
     id: 6,
@@ -37,6 +37,6 @@ export const brands = [
   {
     id: 8,
     name: "Xiaomi",
-    logo: "/images/brands/xiaomi.jpg",
+    logo: "/images/brands/Xiaomi.jpg",
   },
 ];

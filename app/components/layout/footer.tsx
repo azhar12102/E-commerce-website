@@ -72,7 +72,13 @@ export default function Footer() {
 
             <div className="flex gap-4 pt-4">
               <div className="flex gap-4 pt-4">
-                <FaFacebookF className="cursor-pointer text-xl transition hover:text-white" />
+                <a
+    href="https://www.facebook.com/azhar.abbas.977344"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="transition hover:text-white"
+  > <FaFacebookF className="cursor-pointer text-xl transition hover:text-white" /></a>
+               
                 <FaInstagram className="cursor-pointer text-xl transition hover:text-white" />
                 <FaLinkedinIn className="cursor-pointer text-xl transition hover:text-white" />
               </div>
