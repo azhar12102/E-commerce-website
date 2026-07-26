@@ -1,6 +1,14 @@
+"use client";
 import Link from "next/link";
-import { Heart, ShoppingCart, User, Search } from "lucide-react";
-
+import { useState } from "react";
+import {
+  Heart,
+  ShoppingCart,
+  User,
+  Search,
+  Menu,
+  X,
+} from "lucide-react";
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
