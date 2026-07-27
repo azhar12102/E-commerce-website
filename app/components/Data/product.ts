@@ -2,6 +2,7 @@ export const products = [
   {
     id: 1,
     name: "Premium Phone Case",
+    category: "Phone Cases",
     image: "/images/products/phone-case.avif",
     price: 19.99,
     oldPrice: 24.99,
@@ -11,6 +12,7 @@ export const products = [
   {
     id: 2,
     name: "Fast Charger 20W",
+    category: "Chargers",
     image: "/images/products/charger.jpg",
     price: 29.99,
     oldPrice: 39.99,
@@ -20,6 +22,7 @@ export const products = [
   {
     id: 3,
     name: "Wireless Earbuds",
+     category: "Earbuds",
     image: "/images/products/wireless-earbuds.avif",
     price: 49.99,
     oldPrice: 59.99,
@@ -29,6 +32,7 @@ export const products = [
   {
     id: 4,
     name: "Power Bank 10000mAh",
+    category: "Power Banks",
     image: "/images/products/power_bank.avif",
     price: 34.99,
     oldPrice: 44.99,
@@ -38,6 +42,7 @@ export const products = [
   {
     id: 5,
     name: "USB-C Cable",
+     category: "Chargers",
     image: "/images/products/USB-C-Type-Cable.webp",
     price: 9.99,
     oldPrice: 14.99,
@@ -47,6 +52,7 @@ export const products = [
   {
     id: 6,
     name: "Smart Watch",
+    category: "Smart Watches",
     image: "/images/products/smart-watch.jpg",
     price: 79.99,
     oldPrice: 99.99,
