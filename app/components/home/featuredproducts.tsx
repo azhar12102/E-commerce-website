@@ -1,11 +1,11 @@
 import ProductCard from "../ui/productcard";
-import { products } from "../Data/product"; 
+import { products } from "../Data/product";
 
 export default function FeaturedProducts() {
   return (
     <section className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-6">
-        
+
         {/* Section Heading */}
         <div className="mb-12 text-center">
           <h2 className="text-4xl font-bold">
@@ -22,6 +22,7 @@ export default function FeaturedProducts() {
           {products.map((product) => (
             <ProductCard
               key={product.id}
+              id={product.id}
               name={product.name}
               image={product.image}
               price={product.price}
