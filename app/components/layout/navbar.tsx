@@ -1,5 +1,5 @@
 "use client";
-
+import { useCart } from "@/app/context/cartcontext";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -12,8 +12,10 @@ import {
 } from "lucide-react";
 
 export default function Navbar() {
+  const { cartCount } = useCart();
+  
   const [isOpen, setIsOpen] = useState(false);
-
+  
   const closeMenu = () => setIsOpen(false);
 
   return (
@@ -67,14 +69,30 @@ export default function Navbar() {
 
       
         {/* Desktop Icons */}
+{/* Desktop Icons */}
 <div className="hidden items-center gap-5 md:flex">
-  <Heart className="cursor-pointer transition hover:text-red-500" />
-
-  <Link href="/cart">
-    <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
+  {/* Wishlist */}
+  <Link href="/wishlist">
+    <Heart className="cursor-pointer transition hover:text-red-500" />
   </Link>
 
-  <User className="cursor-pointer transition hover:text-blue-600" />
+  {/* Cart */}
+  <div className="relative">
+    <Link href="/cart">
+      <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
+    </Link>
+
+    {cartCount > 0 && (
+      <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+        {cartCount}
+      </span>
+    )}
+  </div>
+
+  {/* User */}
+  <Link href="/login">
+    <User className="cursor-pointer transition hover:text-blue-600" />
+  </Link>
 </div>
 
         {/* Mobile Menu Button */}
@@ -133,13 +151,25 @@ export default function Navbar() {
 
             {/* Mobile Icons */}
           <div className="flex items-center gap-5">
-  <Heart className="cursor-pointer hover:text-red-500 transition" />
-
-  <Link href="/cart">
-    <ShoppingCart className="cursor-pointer hover:text-blue-600 transition" />
+  <Link href="/wishlist" onClick={closeMenu}>
+    <Heart className="cursor-pointer transition hover:text-red-500" />
   </Link>
 
-  <User className="cursor-pointer hover:text-blue-600 transition" />
+  <div className="relative">
+    <Link href="/cart" onClick={closeMenu}>
+      <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
+    </Link>
+
+    {cartCount > 0 && (
+      <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+        {cartCount}
+      </span>
+    )}
+  </div>
+
+  <Link href="/login" onClick={closeMenu}>
+    <User className="cursor-pointer transition hover:text-blue-600" />
+  </Link>
 </div>
           </div>
         </div>
