@@ -65,14 +65,17 @@ export default function Navbar() {
           />
         </div>
 
+      
         {/* Desktop Icons */}
-        <div className="hidden items-center gap-5 md:flex">
-          <Heart className="cursor-pointer transition hover:text-red-500" />
+<div className="hidden items-center gap-5 md:flex">
+  <Heart className="cursor-pointer transition hover:text-red-500" />
 
-          <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
+  <Link href="/cart">
+    <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
+  </Link>
 
-          <User className="cursor-pointer transition hover:text-blue-600" />
-        </div>
+  <User className="cursor-pointer transition hover:text-blue-600" />
+</div>
 
         {/* Mobile Menu Button */}
         <button
@@ -123,18 +126,21 @@ export default function Navbar() {
               <Link href="/contact" onClick={closeMenu}>
                 Contact
               </Link>
+              
             </nav>
 
             <hr />
 
             {/* Mobile Icons */}
-            <div className="flex items-center gap-8">
-              <Heart className="cursor-pointer transition hover:text-red-500" />
+          <div className="flex items-center gap-5">
+  <Heart className="cursor-pointer hover:text-red-500 transition" />
 
-              <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
+  <Link href="/cart">
+    <ShoppingCart className="cursor-pointer hover:text-blue-600 transition" />
+  </Link>
 
-              <User className="cursor-pointer transition hover:text-blue-600" />
-            </div>
+  <User className="cursor-pointer hover:text-blue-600 transition" />
+</div>
           </div>
         </div>
       )}

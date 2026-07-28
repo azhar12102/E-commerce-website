@@ -1,6 +1,9 @@
+import AddToCartButton from "./Addtocart";
+import { useCart } from "@/app/context/cartcontext";
 import { products } from "@/app/components/Data/product";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+
 
 
 type Props = {
@@ -60,9 +63,12 @@ export default async function ProductDetailsPage({ params }: Props) {
             performance.
           </p>
 
-          <button className="mt-8 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700">
-            Add to Cart
-          </button>
+          <AddToCartButton
+            id={product.id}
+            name={product.name}
+            image={product.image}
+            price={product.price}
+          />
         </div>
       </div>
     </main>
