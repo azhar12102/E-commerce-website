@@ -23,6 +23,7 @@ type CartContextType = {
   removeFromCart: (id: number) => void;
   increaseQuantity: (id: number) => void;
   decreaseQuantity: (id: number) => void;
+  clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -92,6 +93,9 @@ const cartCount = cart.reduce(
   (total, item) => total + item.quantity,
   0
 );
+const clearCart = () => {
+  setCart([]);
+};
 
   return (
    
@@ -103,6 +107,8 @@ const cartCount = cart.reduce(
       removeFromCart,
       increaseQuantity,
       decreaseQuantity,
+      clearCart,
+      
     }}
   >
     {children}

@@ -41,11 +41,11 @@ export default async function ProductDetailsPage({ params }: Props) {
           <h1 className="text-4xl font-bold">{product.name}</h1>
 
           <p className="mt-4 text-2xl font-semibold text-blue-600">
-            ${product.price}
+            Rs {product.price}
           </p>
 
           <p className="mt-2 text-lg text-gray-500 line-through">
-            ${product.oldPrice}
+            Rs {product.oldPrice}
           </p>
 
           <div className="mt-4 flex items-center gap-4">

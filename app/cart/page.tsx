@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "../context/cartcontext";
 
@@ -47,7 +47,7 @@ export default function CartPage() {
                   </h2>
 
                   <p className="mt-2 text-blue-600 font-bold">
-                    ${item.price}
+                    Rs{item.price}
                   </p>
 
                   <div className="mt-4 flex items-center gap-3">
@@ -81,12 +81,14 @@ export default function CartPage() {
 
           <div className="mt-10 rounded-xl border p-6">
             <h2 className="text-2xl font-bold">
-              Total: ${totalPrice.toFixed(2)}
+              Total: Rs{totalPrice.toFixed(2)}
             </h2>
-
-            <button className="mt-6 w-full rounded-lg bg-blue-600 py-3 text-white hover:bg-blue-700">
+            <Link
+              href="/checkout"
+              className="mt-6 block w-full rounded-lg bg-blue-600 py-3 text-center text-white transition hover:bg-blue-700"
+            >
               Checkout
-            </button>
+            </Link>
           </div>
         </>
       )}
