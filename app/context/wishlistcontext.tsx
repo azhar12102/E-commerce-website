@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type WishlistItem = {
   id: number;
@@ -24,7 +24,13 @@ export function WishlistProvider({
   children: ReactNode;
 }) {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  useEffect(() => {
+    const savedWishlist = localStorage.getItem("wishlist");
 
+    if (savedWishlist) {
+      setWishlist(JSON.parse(savedWishlist));
+    }
+  }, []);
   const addToWishlist = (product: WishlistItem) => {
     setWishlist((prev) => {
       if (prev.find((item) => item.id === product.id)) {
@@ -42,7 +48,9 @@ export function WishlistProvider({
   const isInWishlist = (id: number) => {
     return wishlist.some((item) => item.id === id);
   };
-
+  useEffect(() => {
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  }, [wishlist]);
   return (
     <WishlistContext.Provider
       value={{

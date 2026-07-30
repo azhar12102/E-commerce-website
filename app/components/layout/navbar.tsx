@@ -39,7 +39,7 @@ export default function Navbar() {
     
   />
    <span className="text-2xl font-bold text-gray-600">
-    MobileStore
+    Mobile-Verse
   </span>
   
 </Link>
