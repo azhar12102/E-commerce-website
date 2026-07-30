@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useCart } from "@/app/context/cartcontext";
 import Link from "next/link";
 import { useState } from "react";
@@ -23,13 +24,25 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* Logo */}
         <Link
-          href="/"
-          className="text-2xl font-bold text-blue-600"
-          onClick={closeMenu}
-        >
-          MobileStore
-        </Link>
+  href="/"
+  className="flex items-center"
+  onClick={closeMenu}
+>
+  <Image
+    src="/images/logo/logo.png"
+    alt="MobileVerse Logo"
+    width={180}
+    height={55}
+    priority
+    className="h-16 w-auto"
 
+    
+  />
+   <span className="text-2xl font-bold text-gray-600">
+    MobileStore
+  </span>
+  
+</Link>
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 md:flex">
           <Link href="/" className="transition hover:text-blue-600">
