@@ -14,9 +14,9 @@ import {
 
 export default function Navbar() {
   const { cartCount } = useCart();
-  
+
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const closeMenu = () => setIsOpen(false);
 
   return (
@@ -24,25 +24,23 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* Logo */}
         <Link
-  href="/"
-  className="flex items-center"
-  onClick={closeMenu}
->
-  <Image
-    src="/images/logo/logo.png"
-    alt="MobileVerse Logo"
-    width={180}
-    height={55}
-    priority
-    className="h-16 w-auto"
+          href="/"
+          className="flex items-center"
+          onClick={closeMenu}
+        >
+          <Image
+            src="/images/logo/logo.png"
+            alt="MobileVerse Logo"
+            width={180}
+            height={55}
+            priority
+            className="h-16 w-auto"
 
-    
-  />
-   <span className="text-2xl font-bold text-gray-600">
-    Mobile-Verse
-  </span>
-  
-</Link>
+
+          />
+
+
+        </Link>
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 md:flex">
           <Link href="/" className="transition hover:text-blue-600">
@@ -55,6 +53,13 @@ export default function Navbar() {
 
           <Link href="/categories" className="transition hover:text-blue-600">
             Categories
+          </Link>
+
+          <Link
+            href="/orders"
+            className="transition hover:text-blue-600"
+          >
+            My Orders
           </Link>
 
           <Link href="/about" className="transition hover:text-blue-600">
@@ -80,33 +85,33 @@ export default function Navbar() {
           />
         </div>
 
-      
+
         {/* Desktop Icons */}
-{/* Desktop Icons */}
-<div className="hidden items-center gap-5 md:flex">
-  {/* Wishlist */}
-  <Link href="/wishlist">
-    <Heart className="cursor-pointer transition hover:text-red-500" />
-  </Link>
+        {/* Desktop Icons */}
+        <div className="hidden items-center gap-5 md:flex">
+          {/* Wishlist */}
+          <Link href="/wishlist">
+            <Heart className="cursor-pointer transition hover:text-red-500" />
+          </Link>
 
-  {/* Cart */}
-  <div className="relative">
-    <Link href="/cart">
-      <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
-    </Link>
+          {/* Cart */}
+          <div className="relative">
+            <Link href="/cart">
+              <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
+            </Link>
 
-    {cartCount > 0 && (
-      <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-        {cartCount}
-      </span>
-    )}
-  </div>
+            {cartCount > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                {cartCount}
+              </span>
+            )}
+          </div>
 
-  {/* User */}
-  <Link href="/login">
-    <User className="cursor-pointer transition hover:text-blue-600" />
-  </Link>
-</div>
+          {/* User */}
+          <Link href="/login">
+            <User className="cursor-pointer transition hover:text-blue-600" />
+          </Link>
+        </div>
 
         {/* Mobile Menu Button */}
         <button
@@ -150,6 +155,10 @@ export default function Navbar() {
                 Categories
               </Link>
 
+              <Link href="/orders" onClick={closeMenu}>
+                My Orders
+              </Link>
+
               <Link href="/about" onClick={closeMenu}>
                 About
               </Link>
@@ -157,33 +166,35 @@ export default function Navbar() {
               <Link href="/contact" onClick={closeMenu}>
                 Contact
               </Link>
-              
+
+
+
             </nav>
 
             <hr />
 
             {/* Mobile Icons */}
-          <div className="flex items-center gap-5">
-  <Link href="/wishlist" onClick={closeMenu}>
-    <Heart className="cursor-pointer transition hover:text-red-500" />
-  </Link>
+            <div className="flex items-center gap-5">
+              <Link href="/wishlist" onClick={closeMenu}>
+                <Heart className="cursor-pointer transition hover:text-red-500" />
+              </Link>
 
-  <div className="relative">
-    <Link href="/cart" onClick={closeMenu}>
-      <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
-    </Link>
+              <div className="relative">
+                <Link href="/cart" onClick={closeMenu}>
+                  <ShoppingCart className="cursor-pointer transition hover:text-blue-600" />
+                </Link>
 
-    {cartCount > 0 && (
-      <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-        {cartCount}
-      </span>
-    )}
-  </div>
+                {cartCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                    {cartCount}
+                  </span>
+                )}
+              </div>
 
-  <Link href="/login" onClick={closeMenu}>
-    <User className="cursor-pointer transition hover:text-blue-600" />
-  </Link>
-</div>
+              <Link href="/login" onClick={closeMenu}>
+                <User className="cursor-pointer transition hover:text-blue-600" />
+              </Link>
+            </div>
           </div>
         </div>
       )}

@@ -1,11 +1,13 @@
 "use client";
 
 import { useCart } from "../context/cartcontext";
+import { useOrders } from "../context/ordercontext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function CheckoutPage() {
     const { cart, clearCart } = useCart();
+    const { addOrder } = useOrders();
     const router = useRouter();
 
     const [name, setName] = useState("");
@@ -28,7 +30,15 @@ export default function CheckoutPage() {
             alert("Your cart is empty.");
             return;
         }
+        addOrder({
+            id: Date.now().toString(),
+            date: new Date().toLocaleDateString(),
+            total,
+            items: cart,
+        });
+
         clearCart();
+
         router.push("/orderSucess");
     };
 

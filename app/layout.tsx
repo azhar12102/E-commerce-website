@@ -3,6 +3,7 @@ import Navbar from "./components/layout/navbar";
 import Footer from "./components/layout/footer";
 import { CartProvider } from "./context/cartcontext";
 import { WishlistProvider } from "./context/wishlistcontext";
+import { OrdersProvider } from "./context/ordercontext";
 export default function RootLayout({
   children,
 }: {
@@ -13,9 +14,11 @@ export default function RootLayout({
       <body>
         <CartProvider>
           <WishlistProvider>
-          <Navbar />
-          {children}
-          <Footer />
+            <OrdersProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </OrdersProvider>
           </WishlistProvider>
         </CartProvider>
       </body>
