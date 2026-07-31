@@ -11,14 +11,26 @@ import {
   Menu,
   X,
 } from "lucide-react";
-
+import { useRouter } from "next/navigation";
+import { useWishlist } from "@/app/context/wishlistcontext";
 export default function Navbar() {
-  const { cartCount } = useCart();
+ const { cartCount } = useCart();
+const { wishlistCount } = useWishlist();
+  const router = useRouter();
+  const [search, setSearch] = useState("");
 
   const [isOpen, setIsOpen] = useState(false);
 
   const closeMenu = () => setIsOpen(false);
+  const handleSearch = () => {
+    if (!search.trim()) return;
 
+    router.push(
+      `/products?search=${encodeURIComponent(search)}`
+    );
+
+    setSearch("");
+  };
   return (
     <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -81,19 +93,31 @@ export default function Navbar() {
           <input
             type="text"
             placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
             className="w-full rounded-lg border py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none"
           />
         </div>
 
-
-        {/* Desktop Icons */}
         {/* Desktop Icons */}
         <div className="hidden items-center gap-5 md:flex">
           {/* Wishlist */}
-          <Link href="/wishlist">
-            <Heart className="cursor-pointer transition hover:text-red-500" />
-          </Link>
+          <div className="relative">
+  <Link href="/wishlist">
+    <Heart className="cursor-pointer transition hover:text-red-500" />
+  </Link>
 
+  {wishlistCount > 0 && (
+    <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+      {wishlistCount}
+    </span>
+  )}
+</div>
           {/* Cart */}
           <div className="relative">
             <Link href="/cart">
@@ -137,9 +161,15 @@ export default function Navbar() {
               <input
                 type="text"
                 placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
                 className="w-full rounded-lg border py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
+              />            </div>
 
             {/* Mobile Links */}
             <nav className="flex flex-col space-y-4">
@@ -175,9 +205,17 @@ export default function Navbar() {
 
             {/* Mobile Icons */}
             <div className="flex items-center gap-5">
-              <Link href="/wishlist" onClick={closeMenu}>
-                <Heart className="cursor-pointer transition hover:text-red-500" />
-              </Link>
+             <div className="relative">
+  <Link href="/wishlist" onClick={closeMenu}>
+    <Heart className="cursor-pointer transition hover:text-red-500" />
+  </Link>
+
+  {wishlistCount > 0 && (
+    <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+      {wishlistCount}
+    </span>
+  )}
+</div>
 
               <div className="relative">
                 <Link href="/cart" onClick={closeMenu}>

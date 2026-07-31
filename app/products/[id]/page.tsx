@@ -1,9 +1,9 @@
 import AddToCartButton from "./Addtocart";
-import { useCart } from "@/app/context/cartcontext";
 import { products } from "@/app/components/Data/product";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-
+import ProductGrid from "@/app/components/products/productGrid";
+import ProductReviews from "@/app/components/products/productsreview";
 
 
 type Props = {
@@ -20,6 +20,13 @@ export default async function ProductDetailsPage({ params }: Props) {
   if (!product) {
     notFound();
   }
+  const relatedProducts = products
+  .filter(
+    (item) =>
+      item.category === product.category &&
+      item.id !== product.id
+  )
+  .slice(0, 4);
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
@@ -71,6 +78,17 @@ export default async function ProductDetailsPage({ params }: Props) {
           />
         </div>
       </div>
+          {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <section className="mt-20">
+          <h2 className="mb-8 text-3xl font-bold">
+            Related Products
+          </h2>
+
+          <ProductGrid products={relatedProducts} />
+          <ProductReviews productId={product.id} />
+        </section>
+      )}
     </main>
   );
 }

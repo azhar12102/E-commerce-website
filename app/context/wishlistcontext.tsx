@@ -11,6 +11,7 @@ export type WishlistItem = {
 
 type WishlistContextType = {
   wishlist: WishlistItem[];
+    wishlistCount: number;
   addToWishlist: (product: WishlistItem) => void;
   removeFromWishlist: (id: number) => void;
   isInWishlist: (id: number) => boolean;
@@ -48,6 +49,7 @@ export function WishlistProvider({
   const isInWishlist = (id: number) => {
     return wishlist.some((item) => item.id === id);
   };
+  const wishlistCount = wishlist.length;
   useEffect(() => {
     localStorage.setItem("wishlist", JSON.stringify(wishlist));
   }, [wishlist]);
@@ -55,6 +57,7 @@ export function WishlistProvider({
     <WishlistContext.Provider
       value={{
         wishlist,
+            wishlistCount,
         addToWishlist,
         removeFromWishlist,
         isInWishlist,

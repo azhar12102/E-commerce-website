@@ -1,19 +1,24 @@
 "use client";
 
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import ProductSearch from "../components/products/productSearch";
 import ProductFilters from "../components/products/productFilters";
 import SortDropdown from "../components/products/sortDropdown";
 import ProductGrid from "../components/products/productGrid";
-
 import { products } from "../components/Data/product";
 
 export default function ProductsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const searchParams = useSearchParams();
+const [searchTerm, setSearchTerm] = useState(
+  searchParams.get("search") || ""
+);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("default");
-
+useEffect(() => {
+  const search = searchParams.get("search") || "";
+  setSearchTerm(search);
+}, [searchParams]);
   const filteredProducts = products
     .filter((product) => {
       const matchesSearch = product.name
@@ -70,6 +75,7 @@ export default function ProductsPage() {
       </div>
 
       <ProductGrid products={filteredProducts} />
+      
     </main>
   );
 }
