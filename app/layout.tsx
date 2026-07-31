@@ -4,6 +4,7 @@ import Footer from "./components/layout/footer";
 import { CartProvider } from "./context/cartcontext";
 import { WishlistProvider } from "./context/wishlistcontext";
 import { OrdersProvider } from "./context/ordercontext";
+import WhatsAppButton from "./whatsapp/whatsappbutton";
 export default function RootLayout({
   children,
 }: {
@@ -17,6 +18,7 @@ export default function RootLayout({
             <OrdersProvider>
               <Navbar />
               {children}
+              <WhatsAppButton/>``
               <Footer />
             </OrdersProvider>
           </WishlistProvider>
