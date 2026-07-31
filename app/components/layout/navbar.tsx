@@ -14,8 +14,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useWishlist } from "@/app/context/wishlistcontext";
 export default function Navbar() {
- const { cartCount } = useCart();
-const { wishlistCount } = useWishlist();
+
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
   const router = useRouter();
   const [search, setSearch] = useState("");
 
@@ -108,16 +109,16 @@ const { wishlistCount } = useWishlist();
         <div className="hidden items-center gap-5 md:flex">
           {/* Wishlist */}
           <div className="relative">
-  <Link href="/wishlist">
-    <Heart className="cursor-pointer transition hover:text-red-500" />
-  </Link>
+            <Link href="/wishlist">
+              <Heart className="cursor-pointer transition hover:text-red-500" />
+            </Link>
 
-  {wishlistCount > 0 && (
-    <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-      {wishlistCount}
-    </span>
-  )}
-</div>
+            {wishlistCount > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                {wishlistCount}
+              </span>
+            )}
+          </div>
           {/* Cart */}
           <div className="relative">
             <Link href="/cart">
@@ -205,17 +206,17 @@ const { wishlistCount } = useWishlist();
 
             {/* Mobile Icons */}
             <div className="flex items-center gap-5">
-             <div className="relative">
-  <Link href="/wishlist" onClick={closeMenu}>
-    <Heart className="cursor-pointer transition hover:text-red-500" />
-  </Link>
+              <div className="relative">
+                <Link href="/wishlist" onClick={closeMenu}>
+                  <Heart className="cursor-pointer transition hover:text-red-500" />
+                </Link>
 
-  {wishlistCount > 0 && (
-    <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-      {wishlistCount}
-    </span>
-  )}
-</div>
+                {wishlistCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                    {wishlistCount}
+                  </span>
+                )}
+              </div>
 
               <div className="relative">
                 <Link href="/cart" onClick={closeMenu}>
