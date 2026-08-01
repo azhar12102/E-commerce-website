@@ -13,11 +13,16 @@ export default function ProductsPage() {
 const [searchTerm, setSearchTerm] = useState(
   searchParams.get("search") || ""
 );
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(
+  searchParams.get("category") || "All"
+);
   const [sortBy, setSortBy] = useState("default");
 useEffect(() => {
   const search = searchParams.get("search") || "";
+  const category = searchParams.get("category") || "All";
+
   setSearchTerm(search);
+  setSelectedCategory(category);
 }, [searchParams]);
   const filteredProducts = products
     .filter((product) => {

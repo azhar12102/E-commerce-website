@@ -5,6 +5,7 @@ import { CartProvider } from "./context/cartcontext";
 import { WishlistProvider } from "./context/wishlistcontext";
 import { OrdersProvider } from "./context/ordercontext";
 import WhatsAppButton from "./whatsapp/whatsappbutton";
+import { Toaster } from "react-hot-toast";
 export default function RootLayout({
   children,
 }: {
@@ -23,6 +24,17 @@ export default function RootLayout({
             </OrdersProvider>
           </WishlistProvider>
         </CartProvider>
+      <Toaster
+    position="top-right"
+    toastOptions={{
+      duration: 2500,
+      style: {
+        background: "#fff",
+        color: "#111827",
+        borderRadius: "10px",
+      },
+    }}
+  />
       </body>
     </html>
   );

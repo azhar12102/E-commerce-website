@@ -1,5 +1,5 @@
 "use client";
-
+import toast from "react-hot-toast";
 import { useCart } from "../context/cartcontext";
 import { useOrders } from "../context/ordercontext";
 import { useRouter } from "next/navigation";
@@ -30,12 +30,12 @@ const [mobileNumber, setMobileNumber] = useState("");
 
     const handleOrder = () => {
   if (!name || !phone || !address || !city) {
-    alert("Please fill in all fields.");
+    toast.error("Please fill in all fields.");
     return;
   }
 
   if (cart.length === 0) {
-    alert("Your cart is empty.");
+    toast.error("Your cart is empty.");
     return;
   }
 
@@ -43,7 +43,7 @@ const [mobileNumber, setMobileNumber] = useState("");
     paymentMethod === "Credit / Debit Card" &&
     (!cardNumber || !expiryDate || !cvv)
   ) {
-    alert("Please enter your card details.");
+    toast.error("Please enter your card details.");
     return;
   }
 
@@ -52,7 +52,7 @@ const [mobileNumber, setMobileNumber] = useState("");
       paymentMethod === "JazzCash") &&
     !mobileNumber
   ) {
-    alert("Please enter your mobile number.");
+    toast.error("Please enter your mobile number.");
     return;
   }
 
@@ -65,7 +65,7 @@ const [mobileNumber, setMobileNumber] = useState("");
   });
 
   clearCart();
-
+toast.success("Order placed successfully!");
   router.push("/orderSucess");
 };
         

@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { useWishlist } from "../context/wishlistcontext";
 
