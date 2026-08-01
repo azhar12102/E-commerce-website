@@ -12,6 +12,7 @@ export type Order = {
   id: string;
   date: string;
   total: number;
+  paymentMethod: string;
   items: {
     id: number;
     name: string;

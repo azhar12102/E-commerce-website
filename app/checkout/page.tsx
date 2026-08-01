@@ -15,32 +15,60 @@ export default function CheckoutPage() {
     const [address, setAddress] = useState("");
     const [city, setCity] = useState("");
 
+    const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
+
+const [cardNumber, setCardNumber] = useState("");
+const [expiryDate, setExpiryDate] = useState("");
+const [cvv, setCvv] = useState("");
+
+const [mobileNumber, setMobileNumber] = useState("");
+
     const total = cart.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
     );
 
     const handleOrder = () => {
-        if (!name || !phone || !address || !city) {
-            alert("Please fill in all fields.");
-            return;
-        }
+  if (!name || !phone || !address || !city) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-        if (cart.length === 0) {
-            alert("Your cart is empty.");
-            return;
-        }
-        addOrder({
-            id: Date.now().toString(),
-            date: new Date().toLocaleDateString(),
-            total,
-            items: cart,
-        });
+  if (cart.length === 0) {
+    alert("Your cart is empty.");
+    return;
+  }
 
-        clearCart();
+  if (
+    paymentMethod === "Credit / Debit Card" &&
+    (!cardNumber || !expiryDate || !cvv)
+  ) {
+    alert("Please enter your card details.");
+    return;
+  }
 
-        router.push("/orderSucess");
-    };
+  if (
+    (paymentMethod === "EasyPaisa" ||
+      paymentMethod === "JazzCash") &&
+    !mobileNumber
+  ) {
+    alert("Please enter your mobile number.");
+    return;
+  }
+
+  addOrder({
+    id: Date.now().toString(),
+    date: new Date().toLocaleDateString(),
+    total,
+    paymentMethod,
+    items: cart,
+  });
+
+  clearCart();
+
+  router.push("/orderSucess");
+};
+        
 
     return (
         <main className="mx-auto max-w-6xl px-6 py-10">
@@ -88,9 +116,102 @@ export default function CheckoutPage() {
                             rows={4}
                         />
 
-                        <div className="rounded bg-gray-100 p-3">
-                            <strong>Payment Method:</strong> Cash on Delivery
-                        </div>
+                       <div className="rounded-lg border p-4">
+  <h3 className="mb-3 font-semibold">
+    Select Payment Method
+  </h3>
+
+  <div className="space-y-3">
+    <label className="flex cursor-pointer items-center gap-3">
+      <input
+        type="radio"
+        name="payment"
+        value="Cash on Delivery"
+        checked={paymentMethod === "Cash on Delivery"}
+        onChange={(e) => setPaymentMethod(e.target.value)}
+      />
+      💵 Cash on Delivery
+    </label>
+
+    <label className="flex cursor-pointer items-center gap-3">
+      <input
+        type="radio"
+        name="payment"
+        value="EasyPaisa"
+        checked={paymentMethod === "EasyPaisa"}
+        onChange={(e) => setPaymentMethod(e.target.value)}
+      />
+      📱 EasyPaisa
+    </label>
+
+    <label className="flex cursor-pointer items-center gap-3">
+      <input
+        type="radio"
+        name="payment"
+        value="JazzCash"
+        checked={paymentMethod === "JazzCash"}
+        onChange={(e) => setPaymentMethod(e.target.value)}
+      />
+      📱 JazzCash
+    </label>
+
+    <label className="flex cursor-pointer items-center gap-3">
+      <input
+        type="radio"
+        name="payment"
+        value="Credit / Debit Card"
+        checked={paymentMethod === "Credit / Debit Card"}
+        onChange={(e) => setPaymentMethod(e.target.value)}
+      />
+      💳 Credit / Debit Card
+    </label>
+  </div>
+
+  {/* Card Payment */}
+  {paymentMethod === "Credit / Debit Card" && (
+    <div className="mt-4 space-y-4">
+      <input
+        type="text"
+        placeholder="Card Number"
+        value={cardNumber}
+        onChange={(e) => setCardNumber(e.target.value)}
+        className="w-full rounded border p-3"
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <input
+          type="text"
+          placeholder="MM/YY"
+          value={expiryDate}
+          onChange={(e) => setExpiryDate(e.target.value)}
+          className="rounded border p-3"
+        />
+
+        <input
+          type="password"
+          placeholder="CVV"
+          value={cvv}
+          onChange={(e) => setCvv(e.target.value)}
+          className="rounded border p-3"
+        />
+      </div>
+    </div>
+  )}
+
+  {/* EasyPaisa / JazzCash */}
+  {(paymentMethod === "EasyPaisa" ||
+    paymentMethod === "JazzCash") && (
+    <div className="mt-4">
+      <input
+        type="tel"
+        placeholder="Mobile Number"
+        value={mobileNumber}
+        onChange={(e) => setMobileNumber(e.target.value)}
+        className="w-full rounded border p-3"
+      />
+    </div>
+  )}
+</div>
                     </div>
                 </div>
 

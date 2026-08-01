@@ -37,6 +37,13 @@ export default function OrdersPage() {
                   <p className="text-gray-500">
                     Date: {order.date}
                   </p>
+
+                  <p className="text-gray-500">
+                    Payment:{" "}
+                    <span className="font-semibold text-blue-600">
+                      {order.paymentMethod}
+                    </span>
+                  </p>
                 </div>
 
                 <span className="rounded bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
@@ -61,7 +68,7 @@ export default function OrdersPage() {
                 ))}
               </div>
 
-              <div className="mt-4 text-right text-xl font-bold">
+              <div className="mt-4 border-t pt-4 text-right text-xl font-bold">
                 Total: Rs. {order.total}
               </div>
             </div>
