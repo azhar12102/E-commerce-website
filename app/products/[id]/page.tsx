@@ -1,10 +1,9 @@
 import AddToCartButton from "./Addtocart";
-import { products } from "@/app/components/Data/product";
+import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import ProductGrid from "@/app/components/products/productGrid";
 import ProductReviews from "@/app/components/products/productsreview";
-
 
 type Props = {
   params: Promise<{
@@ -12,26 +11,48 @@ type Props = {
   }>;
 };
 
-export default async function ProductDetailsPage({ params }: Props) {
+export default async function ProductDetailsPage({
+  params,
+}: Props) {
   const { id } = await params;
 
-  const product = products.find((item) => item.id === Number(id));
+  const product = await prisma.product.findUnique({
+    where: {
+      id: Number(id),
+    },
+    include: {
+      category: true,
+      reviews: true,
+    },
+  });
 
   if (!product) {
     notFound();
   }
-  const relatedProducts = products
-  .filter(
-    (item) =>
-      item.category === product.category &&
-      item.id !== product.id
-  )
-  .slice(0, 4);
+
+  const relatedProducts = await prisma.product.findMany({
+    where: {
+      categoryId: product.categoryId,
+      NOT: {
+        id: product.id,
+      },
+    },
+    include: {
+      category: true,
+    },
+    take: 4,
+  });
+
+  const discount =
+    product.oldPrice && product.oldPrice > product.price
+      ? Math.round(
+          ((product.oldPrice - product.price) / product.oldPrice) * 100
+        )
+      : 0;
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
       <div className="grid gap-12 lg:grid-cols-2">
-        {/* Product Image */}
         <div className="overflow-hidden rounded-xl border bg-white">
           <div className="relative h-[500px] w-full">
             <Image
@@ -43,31 +64,27 @@ export default async function ProductDetailsPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Product Info */}
         <div>
           <h1 className="text-4xl font-bold">{product.name}</h1>
 
           <p className="mt-4 text-2xl font-semibold text-blue-600">
-            Rs {product.price}
+            Rs. {product.price}
           </p>
 
-          <p className="mt-2 text-lg text-gray-500 line-through">
-            Rs {product.oldPrice}
-          </p>
+          {product.oldPrice && (
+            <p className="mt-2 text-lg text-gray-500 line-through">
+              Rs. {product.oldPrice}
+            </p>
+          )}
 
-          <div className="mt-4 flex items-center gap-4">
-            <span className="rounded bg-yellow-100 px-3 py-1 text-yellow-700">
-              ⭐ {product.rating}
+          {discount > 0 && (
+            <span className="mt-4 inline-block rounded bg-red-100 px-3 py-1 text-red-600">
+              {discount}% OFF
             </span>
-
-            <span className="rounded bg-red-100 px-3 py-1 text-red-600">
-              {product.discount}% OFF
-            </span>
-          </div>
+          )}
 
           <p className="mt-8 text-gray-600">
-            Premium quality mobile accessory with excellent durability and
-            performance.
+            {product.description}
           </p>
 
           <AddToCartButton
@@ -78,7 +95,7 @@ export default async function ProductDetailsPage({ params }: Props) {
           />
         </div>
       </div>
-          {/* Related Products */}
+
       {relatedProducts.length > 0 && (
         <section className="mt-20">
           <h2 className="mb-8 text-3xl font-bold">
@@ -86,6 +103,7 @@ export default async function ProductDetailsPage({ params }: Props) {
           </h2>
 
           <ProductGrid products={relatedProducts} />
+
           <ProductReviews productId={product.id} />
         </section>
       )}

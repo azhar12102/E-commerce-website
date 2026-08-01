@@ -6,9 +6,24 @@ import ProductSearch from "./productSearch";
 import ProductFilters from "./productFilters";
 import SortDropdown from "./sortDropdown";
 import ProductGrid from "./productGrid";
-import { products } from "../Data/product";
 
+type Product = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  image: string;
+  price: number;
+  oldPrice: number | null;
+  stock: number;
+  category: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+};
 export default function ProductsPage() {
+const [products, setProducts] = useState<Product[]>([]);
   const searchParams = useSearchParams();
 const [searchTerm, setSearchTerm] = useState(
   searchParams.get("search") || ""
@@ -23,6 +38,14 @@ useEffect(() => {
 
   setSearchTerm(search);
   setSelectedCategory(category);
+
+  async function fetchProducts() {
+    const res = await fetch("/api/products");
+    const data = await res.json();
+    setProducts(data);
+  }
+
+  fetchProducts();
 }, [searchParams]);
   const filteredProducts = products
     .filter((product) => {
@@ -32,7 +55,7 @@ useEffect(() => {
 
       const matchesCategory =
         selectedCategory === "All" ||
-        product.category === selectedCategory;
+        product.category.name === selectedCategory;
 
       return matchesSearch && matchesCategory;
     })
@@ -44,16 +67,12 @@ useEffect(() => {
         case "price-high":
           return b.price - a.price;
 
-        case "rating":
-          return b.rating - a.rating;
-
-        case "discount":
-          return b.discount - a.discount;
-
         default:
           return 0;
       }
     });
+    
+    
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
       <h1 className="mb-8 text-4xl font-bold">

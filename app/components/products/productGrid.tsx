@@ -1,13 +1,19 @@
 import ProductCard from "../ui/productcard";
 
 type Product = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  image: string;
+  price: number;
+  oldPrice: number | null;
+  stock: number;
+  category: {
     id: number;
     name: string;
-    image: string;
-    price: number;
-    oldPrice: number;
-    rating: number;
-    discount: number;
+    slug: string;
+  };
 };
 
 type ProductGridProps = {
@@ -34,16 +40,14 @@ export default function ProductGrid({
     return (
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => (
-                <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    image={product.image}
-                    price={product.price}
-                    oldPrice={product.oldPrice}
-                    rating={product.rating}
-                    discount={product.discount}
-                />
+               <ProductCard
+  key={product.id}
+  id={product.id}
+  name={product.name}
+  image={product.image}
+  price={product.price}
+  oldPrice={product.oldPrice ?? 0}
+/>
             ))}
         </div>
     );

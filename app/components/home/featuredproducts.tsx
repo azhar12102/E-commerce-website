@@ -20,16 +20,14 @@ export default function FeaturedProducts() {
         {/* Products Grid */}
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              image={product.image}
-              price={product.price}
-              oldPrice={product.oldPrice}
-              rating={product.rating}
-              discount={product.discount}
-            />
+           <ProductCard
+  key={product.id}
+  id={product.id}
+  name={product.name}
+  image={product.image}
+  price={product.price}
+  oldPrice={product.oldPrice}
+/>
           ))}
         </div>
       </div>

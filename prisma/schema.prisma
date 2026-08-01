@@ -20,14 +20,17 @@ model User {
 }
 
 model Category {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique
-  products  Product[]
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  slug     String    @unique
+
+  products Product[]
 }
 
 model Product {
   id          Int        @id @default(autoincrement())
   name        String
+  slug        String     @unique
   description String
   image       String
   price       Float
@@ -40,7 +43,6 @@ model Product {
   reviews     Review[]
   orderItems  OrderItem[]
 }
-
 model Order {
   id            String      @id @default(cuid())
   total         Float

@@ -11,8 +11,6 @@ type ProductCardProps = {
   image: string;
   price: number;
   oldPrice: number;
-  rating: number;
-  discount: number;
 };
 
 export default function ProductCard({
@@ -21,8 +19,6 @@ export default function ProductCard({
   image,
   price,
   oldPrice,
-  rating,
-  discount,
 }: ProductCardProps) {
   const {
     wishlist,
@@ -32,13 +28,16 @@ export default function ProductCard({
 
   const wished = wishlist.some((item) => item.id === id);
 
+  const discount =
+    oldPrice > price
+      ? Math.round(((oldPrice - price) / oldPrice) * 100)
+      : 0;
+
   const handleWishlist = (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
     e.stopPropagation();
-
-    console.log("Heart clicked:", id);
 
     if (wished) {
       removeFromWishlist(id);
@@ -55,7 +54,6 @@ export default function ProductCard({
   return (
     <Link href={`/products/${id}`}>
       <div className="group cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-lg">
-        {/* Product Image */}
         <div className="relative h-64 w-full overflow-hidden">
           <Image
             src={image}
@@ -64,7 +62,6 @@ export default function ProductCard({
             className="object-cover transition-transform duration-300 group-hover:scale-110"
           />
 
-          {/* Wishlist Button */}
           <button
             type="button"
             onClick={handleWishlist}
@@ -80,13 +77,13 @@ export default function ProductCard({
             />
           </button>
 
-          {/* Discount Badge */}
-          <span className="absolute left-3 top-3 rounded-md bg-red-500 px-2 py-1 text-xs font-semibold text-white">
-            {discount}% OFF
-          </span>
+          {discount > 0 && (
+            <span className="absolute left-3 top-3 rounded-md bg-red-500 px-2 py-1 text-xs font-semibold text-white">
+              {discount}% OFF
+            </span>
+          )}
         </div>
 
-        {/* Product Details */}
         <div className="p-5">
           <h3 className="line-clamp-2 text-lg font-semibold">
             {name}
@@ -97,21 +94,19 @@ export default function ProductCard({
               Rs. {price}
             </span>
 
-            <span className="text-sm text-gray-500 line-through">
-              Rs. {oldPrice}
-            </span>
+            {oldPrice > price && (
+              <span className="text-sm text-gray-500 line-through">
+                Rs. {oldPrice}
+              </span>
+            )}
           </div>
 
-          <div className="mt-3 flex items-center justify-between">
-            <span className="rounded bg-yellow-100 px-2 py-1 text-sm font-medium text-yellow-700">
-              ⭐ {rating}
-            </span>
-
+          <div className="mt-4">
             <button
               type="button"
-              className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+              className="w-full rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
             >
-              View
+              View Product
             </button>
           </div>
         </div>
