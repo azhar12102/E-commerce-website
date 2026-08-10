@@ -1,11 +1,13 @@
 import "./globals.css";
 import Navbar from "./components/layout/navbar";
 import Footer from "./components/layout/footer";
+
 import { CartProvider } from "./context/cartcontext";
 import { WishlistProvider } from "./context/wishlistcontext";
 import { OrdersProvider } from "./context/ordercontext";
 import WhatsAppButton from "./whatsapp/whatsappbutton";
-import { Toaster } from "react-hot-toast";
+import ToastProvider from "./components/toastprovider";
+
 export default function RootLayout({
   children,
 }: {
@@ -19,22 +21,13 @@ export default function RootLayout({
             <OrdersProvider>
               <Navbar />
               {children}
-              <WhatsAppButton/>``
+              <WhatsAppButton />
               <Footer />
             </OrdersProvider>
           </WishlistProvider>
         </CartProvider>
-      <Toaster
-    position="top-right"
-    toastOptions={{
-      duration: 2500,
-      style: {
-        background: "#fff",
-        color: "#111827",
-        borderRadius: "10px",
-      },
-    }}
-  />
+
+        <ToastProvider />
       </body>
     </html>
   );
