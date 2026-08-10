@@ -26,7 +26,7 @@ export const categories = [
   {
     id: 5,
     name: "Screen Protectors",
-    image: "/images/categories/screen-protector.webp",
+    image: "/images/categories/Screen-protector.webp",
     products: 110,
   },
   {
