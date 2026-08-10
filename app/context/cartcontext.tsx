@@ -94,8 +94,13 @@ const cartCount = cart.reduce(
   0
 );
 const clearCart = () => {
+  console.log("CLEAR CART CLICKED");
+
   setCart([]);
-};
+  localStorage.removeItem("cart");
+
+  console.log("Cart after clear:", localStorage.getItem("cart"));
+}; 
 
   return (
    

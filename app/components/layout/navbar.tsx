@@ -14,9 +14,9 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useWishlist } from "@/app/context/wishlistcontext";
-
+import toast from "react-hot-toast";
 export default function Navbar() {
-  const { cartCount } = useCart();
+  const { cartCount,clearCart } = useCart();
   const { wishlistCount } = useWishlist();
   const router = useRouter();
 
@@ -82,21 +82,30 @@ export default function Navbar() {
 }, []);
   // Logout
   const handleLogout = async () => {
-    try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-      });
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+    });
 
-      if (response.ok) {
-        setUser(null);
-        setIsOpen(false);
-        window.location.href = "/login";
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
+    console.log("Logout status:", response.status);
+
+    if (response.ok) {
+      clearCart();
+      localStorage.removeItem("cart");
+
+      console.log(
+        "Cart after logout:",
+        localStorage.getItem("cart")
+      );
+
+      setUser(null);
+
+      window.location.href = "/login";
     }
-  };
-
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
   return (
     <header className="border-b bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
