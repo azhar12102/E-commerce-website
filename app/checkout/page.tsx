@@ -2,13 +2,11 @@
 
 import toast from "react-hot-toast";
 import { useCart } from "../context/cartcontext";
-import { useOrders } from "../context/ordercontext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
-  const { addOrder } = useOrders();
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -16,8 +14,7 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
 
-  const [paymentMethod, setPaymentMethod] =
-    useState("Cash on Delivery");
+  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
 
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -26,6 +23,7 @@ export default function CheckoutPage() {
   const [mobileNumber, setMobileNumber] = useState("");
 
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [placingOrder, setPlacingOrder] = useState(false);
 
   const [user, setUser] = useState<{
     id: string;
@@ -33,7 +31,7 @@ export default function CheckoutPage() {
     email: string;
   } | null>(null);
 
-  // Check if user is logged in
+  // Check whether the user is logged in
   useEffect(() => {
     const checkUser = async () => {
       try {
@@ -49,7 +47,7 @@ export default function CheckoutPage() {
 
         setUser(data.user);
 
-        // Automatically fill name from logged-in account
+        // Automatically fill the user's name
         if (data.user?.name) {
           setName(data.user.name);
         }
@@ -66,17 +64,22 @@ export default function CheckoutPage() {
     checkUser();
   }, [router]);
 
-  // Calculate total
   const total = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  const handleOrder = () => {
-    // Extra authentication protection
+  const handleOrder = async () => {
+    // Extra frontend authentication check
     if (!user) {
       toast.error("Please login to place an order.");
       router.push("/login");
+      return;
+    }
+
+    // Check customer information
+    if (!name || !phone || !address || !city) {
+      toast.error("Please fill in all customer details.");
       return;
     }
 
@@ -86,13 +89,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Check customer details
-    if (!name || !phone || !address || !city) {
-      toast.error("Please fill in all fields.");
-      return;
-    }
-
-    // Check card details
+    // Check card information
     if (
       paymentMethod === "Credit / Debit Card" &&
       (!cardNumber || !expiryDate || !cvv)
@@ -111,27 +108,55 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Create order
-    addOrder({
-      id: Date.now().toString(),
-      date: new Date().toLocaleDateString(),
-      total,
-      paymentMethod,
-      items: cart,
-    });
+    try {
+      setPlacingOrder(true);
 
-    // Clear cart
-    clearCart();
+      // Send order to our backend API
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          total,
+          paymentMethod,
+          items: cart,
+        }),
+      });
 
-    // Also remove saved cart from browser storage
-    localStorage.removeItem("cart");
+      const data = await response.json();
 
-    toast.success("Order placed successfully!");
+      console.log("ORDER STATUS:", response.status);
+      console.log("ORDER RESPONSE:", data);
 
-    router.push("/orderSucess");
+      // If backend returns an error
+      if (!response.ok) {
+        toast.error(data.error || "Failed to place order.");
+        return;
+      }
+
+      // Order was successfully saved in Neon
+      clearCart();
+
+      // Also remove the saved cart from localStorage
+      localStorage.removeItem("cart");
+
+      toast.success("Order placed successfully!");
+
+      // Go to success page
+      router.push("/orderSucess");
+    } catch (error) {
+      console.error("ORDER ERROR:", error);
+
+      toast.error(
+        "Something went wrong while placing your order."
+      );
+    } finally {
+      setPlacingOrder(false);
+    }
   };
 
-  // Show loading while checking authentication
+  // While checking login
   if (checkingAuth) {
     return (
       <main className="flex min-h-[70vh] items-center justify-center">
@@ -149,6 +174,7 @@ export default function CheckoutPage() {
       </h1>
 
       <div className="grid gap-8 lg:grid-cols-2">
+
         {/* Customer Details */}
         <div className="rounded-lg border p-6">
           <h2 className="mb-4 text-xl font-semibold">
@@ -156,6 +182,7 @@ export default function CheckoutPage() {
           </h2>
 
           <div className="space-y-4">
+
             <input
               type="text"
               placeholder="Full Name"
@@ -194,121 +221,134 @@ export default function CheckoutPage() {
                 Payment Method
               </h3>
 
-              {/* Cash on Delivery */}
-              <label className="mb-3 flex cursor-pointer items-center gap-3">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="Cash on Delivery"
-                  checked={
-                    paymentMethod === "Cash on Delivery"
-                  }
-                  onChange={(e) =>
-                    setPaymentMethod(e.target.value)
-                  }
-                />
+              <div className="space-y-3">
 
-                💵 Cash on Delivery
-              </label>
+                {/* Cash on Delivery */}
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="Cash on Delivery"
+                    checked={
+                      paymentMethod === "Cash on Delivery"
+                    }
+                    onChange={(e) =>
+                      setPaymentMethod(e.target.value)
+                    }
+                  />
 
-              {/* EasyPaisa */}
-              <label className="mb-3 flex cursor-pointer items-center gap-3">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="EasyPaisa"
-                  checked={paymentMethod === "EasyPaisa"}
-                  onChange={(e) =>
-                    setPaymentMethod(e.target.value)
-                  }
-                />
+                  <span>💵 Cash on Delivery</span>
+                </label>
 
-                📱 EasyPaisa
-              </label>
+                {/* EasyPaisa */}
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="EasyPaisa"
+                    checked={paymentMethod === "EasyPaisa"}
+                    onChange={(e) =>
+                      setPaymentMethod(e.target.value)
+                    }
+                  />
 
-              {/* JazzCash */}
-              <label className="mb-3 flex cursor-pointer items-center gap-3">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="JazzCash"
-                  checked={paymentMethod === "JazzCash"}
-                  onChange={(e) =>
-                    setPaymentMethod(e.target.value)
-                  }
-                />
+                  <span>📱 EasyPaisa</span>
+                </label>
 
-                📱 JazzCash
-              </label>
+                {/* JazzCash */}
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="JazzCash"
+                    checked={paymentMethod === "JazzCash"}
+                    onChange={(e) =>
+                      setPaymentMethod(e.target.value)
+                    }
+                  />
 
-              {/* Card */}
-              <label className="flex cursor-pointer items-center gap-3">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="Credit / Debit Card"
-                  checked={
-                    paymentMethod === "Credit / Debit Card"
-                  }
-                  onChange={(e) =>
-                    setPaymentMethod(e.target.value)
-                  }
-                />
+                  <span>📱 JazzCash</span>
+                </label>
 
-                💳 Credit / Debit Card
-              </label>
-            </div>
+                {/* Card */}
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="Credit / Debit Card"
+                    checked={
+                      paymentMethod ===
+                      "Credit / Debit Card"
+                    }
+                    onChange={(e) =>
+                      setPaymentMethod(e.target.value)
+                    }
+                  />
 
-            {/* Card Payment */}
-            {paymentMethod === "Credit / Debit Card" && (
-              <div className="space-y-4 rounded-lg border p-4">
-                <input
-                  type="text"
-                  placeholder="Card Number"
-                  value={cardNumber}
-                  onChange={(e) =>
-                    setCardNumber(e.target.value)
-                  }
-                  className="w-full rounded border p-3"
-                />
+                  <span>💳 Credit / Debit Card</span>
+                </label>
 
-                <div className="grid grid-cols-2 gap-4">
+              </div>
+
+              {/* Card Payment */}
+              {paymentMethod === "Credit / Debit Card" && (
+                <div className="mt-4 space-y-4">
+
                   <input
                     type="text"
-                    placeholder="MM/YY"
-                    value={expiryDate}
+                    placeholder="Card Number"
+                    value={cardNumber}
                     onChange={(e) =>
-                      setExpiryDate(e.target.value)
+                      setCardNumber(e.target.value)
                     }
-                    className="rounded border p-3"
+                    className="w-full rounded border p-3"
                   />
+
+                  <div className="grid grid-cols-2 gap-4">
+
+                    <input
+                      type="text"
+                      placeholder="MM/YY"
+                      value={expiryDate}
+                      onChange={(e) =>
+                        setExpiryDate(e.target.value)
+                      }
+                      className="rounded border p-3"
+                    />
+
+                    <input
+                      type="password"
+                      placeholder="CVV"
+                      value={cvv}
+                      onChange={(e) =>
+                        setCvv(e.target.value)
+                      }
+                      className="rounded border p-3"
+                    />
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* EasyPaisa / JazzCash */}
+              {(paymentMethod === "EasyPaisa" ||
+                paymentMethod === "JazzCash") && (
+                <div className="mt-4">
 
                   <input
-                    type="password"
-                    placeholder="CVV"
-                    value={cvv}
+                    type="tel"
+                    placeholder="Mobile Number"
+                    value={mobileNumber}
                     onChange={(e) =>
-                      setCvv(e.target.value)
+                      setMobileNumber(e.target.value)
                     }
-                    className="rounded border p-3"
+                    className="w-full rounded border p-3"
                   />
-                </div>
-              </div>
-            )}
 
-            {/* EasyPaisa / JazzCash */}
-            {(paymentMethod === "EasyPaisa" ||
-              paymentMethod === "JazzCash") && (
-              <input
-                type="tel"
-                placeholder="Mobile Number"
-                value={mobileNumber}
-                onChange={(e) =>
-                  setMobileNumber(e.target.value)
-                }
-                className="w-full rounded border p-3"
-              />
-            )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -324,6 +364,7 @@ export default function CheckoutPage() {
             </p>
           ) : (
             <div className="space-y-3">
+
               {cart.map((item) => (
                 <div
                   key={item.id}
@@ -338,6 +379,7 @@ export default function CheckoutPage() {
                   </span>
                 </div>
               ))}
+
             </div>
           )}
 
@@ -346,15 +388,19 @@ export default function CheckoutPage() {
           <div className="flex justify-between text-xl font-bold">
             <span>Total</span>
 
-            <span>Rs. {total}</span>
+            <span>
+              Rs. {total}
+            </span>
           </div>
 
           <button
             onClick={handleOrder}
-            disabled={cart.length === 0}
-            className="mt-6 w-full rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+            disabled={placingOrder || cart.length === 0}
+            className="mt-6 w-full rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Place Order
+            {placingOrder
+              ? "Placing Order..."
+              : "Place Order"}
           </button>
         </div>
       </div>
