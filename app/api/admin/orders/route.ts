@@ -5,16 +5,18 @@ import { verifySession } from "@/lib/auth";
 
 export async function GET() {
   try {
+    // Get session cookie
     const cookieStore = await cookies();
     const token = cookieStore.get("session")?.value;
 
     if (!token) {
       return NextResponse.json(
-        { error: "Not logged in" },
+        { error: "Please login first" },
         { status: 401 }
       );
     }
 
+    // Verify session
     const session = await verifySession(token);
 
     if (!session) {
@@ -24,6 +26,7 @@ export async function GET() {
       );
     }
 
+    // Find logged-in user
     const user = await prisma.user.findUnique({
       where: {
         id: session.userId,
@@ -32,9 +35,7 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
-        phone: true,
-        address: true,
-         role: true,
+        role: true,
       },
     });
 
@@ -45,12 +46,45 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ user });
+    // Check admin role
+    if (user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Access denied. Admin only." },
+        { status: 403 }
+      );
+    }
+
+    // Get all orders
+    const orders = await prisma.order.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            address: true,
+          },
+        },
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      orders,
+    });
   } catch (error) {
-    console.error("ME API ERROR:", error);
+    console.error("ADMIN ORDERS ERROR:", error);
 
     return NextResponse.json(
-      { error: "Something went wrong" },
+      { error: "Failed to fetch admin orders" },
       { status: 500 }
     );
   }

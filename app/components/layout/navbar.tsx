@@ -14,9 +14,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useWishlist } from "@/app/context/wishlistcontext";
-import toast from "react-hot-toast";
 export default function Navbar() {
-  const { cartCount,clearCart } = useCart();
+  const { cartCount, clearCart } = useCart();
   const { wishlistCount } = useWishlist();
   const router = useRouter();
 
@@ -27,6 +26,7 @@ export default function Navbar() {
     id: string;
     name: string;
     email: string;
+    role: string;
   } | null>(null);
 
   const [loadingUser, setLoadingUser] = useState(true);
@@ -44,68 +44,68 @@ export default function Navbar() {
   };
 
   // Check logged-in user
- useEffect(() => {
-  const getUser = async () => {
-    try {
-      const response = await fetch("/api/auth/me", {
-        cache: "no-store",
-      });
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me", {
+          cache: "no-store",
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      } else {
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Failed to get user:", error);
         setUser(null);
+      } finally {
+        setLoadingUser(false);
       }
-    } catch (error) {
-      console.error("Failed to get user:", error);
-      setUser(null);
-    } finally {
-      setLoadingUser(false);
-    }
-  };
+    };
 
-  getUser();
-
-  const handleAuthChange = () => {
     getUser();
-  };
 
-  window.addEventListener("auth-change", handleAuthChange);
+    const handleAuthChange = () => {
+      getUser();
+    };
 
-  return () => {
-    window.removeEventListener(
-      "auth-change",
-      handleAuthChange
-    );
-  };
-}, []);
+    window.addEventListener("auth-change", handleAuthChange);
+
+    return () => {
+      window.removeEventListener(
+        "auth-change",
+        handleAuthChange
+      );
+    };
+  }, []);
   // Logout
   const handleLogout = async () => {
-  try {
-    const response = await fetch("/api/auth/logout", {
-      method: "POST",
-    });
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
 
-    console.log("Logout status:", response.status);
+      console.log("Logout status:", response.status);
 
-    if (response.ok) {
-      clearCart();
-      localStorage.removeItem("cart");
+      if (response.ok) {
+        clearCart();
+        localStorage.removeItem("cart");
 
-      console.log(
-        "Cart after logout:",
-        localStorage.getItem("cart")
-      );
+        console.log(
+          "Cart after logout:",
+          localStorage.getItem("cart")
+        );
 
-      setUser(null);
+        setUser(null);
 
-      window.location.href = "/login";
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
     }
-  } catch (error) {
-    console.error("Logout error:", error);
-  }
-};
+  };
   return (
     <header className="border-b bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
@@ -122,7 +122,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-5 md:flex">
           <Link
             href="/"
             className="transition hover:text-blue-600"
@@ -150,6 +150,15 @@ export default function Navbar() {
           >
             My Orders
           </Link>
+
+          {user?.role === "ADMIN" && (
+            <Link
+              href="/admin/orders"
+              className="transition hover:text-blue-600"
+            >
+              Customer Orders
+            </Link>
+          )}
 
           <Link
             href="/about"
@@ -291,6 +300,15 @@ export default function Navbar() {
                 My Orders
               </Link>
 
+              {user?.role === "ADMIN" && (
+                <Link
+                  href="/admin/orders"
+                  onClick={closeMenu}
+                  className="font-semibold text-blue-600"
+                >
+                  Customer Orders
+                </Link>
+              )}
               <Link href="/about" onClick={closeMenu}>
                 About
               </Link>
