@@ -10,7 +10,8 @@ type ProductCardProps = {
   name: string;
   image: string;
   price: number;
-  oldPrice: number;
+oldPrice: number | null;
+  stock: number;
 };
 
 export default function ProductCard({
@@ -19,6 +20,7 @@ export default function ProductCard({
   image,
   price,
   oldPrice,
+  stock,
 }: ProductCardProps) {
   const {
     wishlist,
@@ -29,9 +31,9 @@ export default function ProductCard({
   const wished = wishlist.some((item) => item.id === id);
 
   const discount =
-    oldPrice > price
-      ? Math.round(((oldPrice - price) / oldPrice) * 100)
-      : 0;
+  oldPrice !== null && oldPrice > price
+    ? Math.round(((oldPrice - price) / oldPrice) * 100)
+    : 0;
 
   const handleWishlist = (
     e: React.MouseEvent<HTMLButtonElement>
@@ -51,6 +53,8 @@ export default function ProductCard({
     }
   };
 
+  const isOutOfStock = stock <= 0;
+
   return (
     <Link href={`/products/${id}`}>
       <div className="group cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-lg">
@@ -62,6 +66,7 @@ export default function ProductCard({
             className="object-cover transition-transform duration-300 group-hover:scale-110"
           />
 
+          {/* Wishlist */}
           <button
             type="button"
             onClick={handleWishlist}
@@ -77,10 +82,20 @@ export default function ProductCard({
             />
           </button>
 
+          {/* Discount */}
           {discount > 0 && (
             <span className="absolute left-3 top-3 rounded-md bg-red-500 px-2 py-1 text-xs font-semibold text-white">
               {discount}% OFF
             </span>
+          )}
+
+          {/* Out of Stock */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50">
+              <span className="rounded-lg bg-red-600 px-4 py-2 font-bold text-white">
+                Out of Stock
+              </span>
+            </div>
           )}
         </div>
 
@@ -94,19 +109,42 @@ export default function ProductCard({
               Rs. {price}
             </span>
 
-            {oldPrice > price && (
-              <span className="text-sm text-gray-500 line-through">
-                Rs. {oldPrice}
-              </span>
+            {oldPrice !== null && oldPrice > price && (
+  <span className="text-sm text-gray-500 line-through">
+    Rs. {oldPrice}
+  </span>
+)}
+            
+          </div>
+
+          {/* Stock Information */}
+          <div className="mt-3">
+            {stock <= 0 ? (
+              <p className="text-sm font-semibold text-red-600">
+                Out of Stock
+              </p>
+            ) : stock <= 5 ? (
+              <p className="text-sm font-semibold text-orange-600">
+                Only {stock} left
+              </p>
+            ) : (
+              <p className="text-sm font-medium text-green-600">
+                In Stock
+              </p>
             )}
           </div>
 
           <div className="mt-4">
             <button
               type="button"
-              className="w-full rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+              disabled={isOutOfStock}
+              className={`w-full rounded-lg px-3 py-2 text-sm font-medium text-white transition ${
+                isOutOfStock
+                  ? "cursor-not-allowed bg-gray-400"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
             >
-              View Product
+              {isOutOfStock ? "Out of Stock" : "View Product"}
             </button>
           </div>
         </div>

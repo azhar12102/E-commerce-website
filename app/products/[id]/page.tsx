@@ -44,15 +44,21 @@ export default async function ProductDetailsPage({
   });
 
   const discount =
-    product.oldPrice && product.oldPrice > product.price
+    product.oldPrice !== null &&
+    product.oldPrice > product.price
       ? Math.round(
-          ((product.oldPrice - product.price) / product.oldPrice) * 100
+          ((product.oldPrice - product.price) /
+            product.oldPrice) *
+            100
         )
       : 0;
+
+  const isOutOfStock = product.stock <= 0;
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
       <div className="grid gap-12 lg:grid-cols-2">
+        {/* Product Image */}
         <div className="overflow-hidden rounded-xl border bg-white">
           <div className="relative h-[500px] w-full">
             <Image
@@ -61,27 +67,56 @@ export default async function ProductDetailsPage({
               fill
               className="object-contain p-8"
             />
+
+            {isOutOfStock && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <span className="rounded-lg bg-red-600 px-6 py-3 text-xl font-bold text-white">
+                  Out of Stock
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Product Information */}
         <div>
-          <h1 className="text-4xl font-bold">{product.name}</h1>
+          <h1 className="text-4xl font-bold">
+            {product.name}
+          </h1>
 
           <p className="mt-4 text-2xl font-semibold text-blue-600">
             Rs. {product.price}
           </p>
 
-          {product.oldPrice && (
-            <p className="mt-2 text-lg text-gray-500 line-through">
-              Rs. {product.oldPrice}
-            </p>
-          )}
+          {product.oldPrice !== null &&
+            product.oldPrice > product.price && (
+              <p className="mt-2 text-lg text-gray-500 line-through">
+                Rs. {product.oldPrice}
+              </p>
+            )}
 
           {discount > 0 && (
             <span className="mt-4 inline-block rounded bg-red-100 px-3 py-1 text-red-600">
               {discount}% OFF
             </span>
           )}
+
+          {/* Stock Status */}
+          <div className="mt-5">
+            {product.stock <= 0 ? (
+              <p className="font-semibold text-red-600">
+                Out of Stock
+              </p>
+            ) : product.stock <= 5 ? (
+              <p className="font-semibold text-orange-600">
+                Only {product.stock} left in stock
+              </p>
+            ) : (
+              <p className="font-semibold text-green-600">
+                In Stock ({product.stock} available)
+              </p>
+            )}
+          </div>
 
           <p className="mt-8 text-gray-600">
             {product.description}
@@ -92,10 +127,12 @@ export default async function ProductDetailsPage({
             name={product.name}
             image={product.image}
             price={product.price}
+            stock={product.stock}
           />
         </div>
       </div>
 
+      {/* Related Products */}
       {relatedProducts.length > 0 && (
         <section className="mt-20">
           <h2 className="mb-8 text-3xl font-bold">

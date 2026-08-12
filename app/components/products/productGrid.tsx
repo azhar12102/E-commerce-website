@@ -46,7 +46,8 @@ export default function ProductGrid({
           name={product.name}
           image={product.image}
           price={product.price}
-          oldPrice={product.oldPrice ?? 0}
+          oldPrice={product.oldPrice}
+          stock={product.stock}
         />
       ))}
     </div>
