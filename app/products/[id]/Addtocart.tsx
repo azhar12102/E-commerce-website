@@ -74,6 +74,7 @@ export default function AddToCartButton({
         name,
         image,
         price,
+        stock,
       });
 
       toast.success(`${name} added to cart!`);

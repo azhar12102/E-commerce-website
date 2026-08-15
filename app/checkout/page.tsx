@@ -1,409 +1,248 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useCart } from "../context/cartcontext";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const router = useRouter();
 
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
-
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
-
-  const [mobileNumber, setMobileNumber] = useState("");
-
-  const [checkingAuth, setCheckingAuth] = useState(true);
-  const [placingOrder, setPlacingOrder] = useState(false);
-
-  const [user, setUser] = useState<{
-    id: string;
-    name: string;
-    email: string;
-  } | null>(null);
-
-  // Check whether the user is logged in
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const response = await fetch("/api/auth/me");
-
-        if (!response.ok) {
-          toast.error("Please login to continue.");
-          router.push("/login");
-          return;
-        }
-
-        const data = await response.json();
-
-        setUser(data.user);
-
-        // Automatically fill the user's name
-        if (data.user?.name) {
-          setName(data.user.name);
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-
-        toast.error("Please login to continue.");
-        router.push("/login");
-      } finally {
-        setCheckingAuth(false);
-      }
-    };
-
-    checkUser();
-  }, [router]);
-
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const totalPrice = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
     0
   );
 
-  const handleOrder = async () => {
-    // Extra frontend authentication check
-    if (!user) {
-      toast.error("Please login to place an order.");
-      router.push("/login");
-      return;
-    }
-
-    // Check customer information
-    if (!name || !phone || !address || !city) {
-      toast.error("Please fill in all customer details.");
-      return;
-    }
-
-    // Check cart
+  const handlePlaceOrder = async () => {
     if (cart.length === 0) {
       toast.error("Your cart is empty.");
       return;
     }
 
-    // Check card information
-    if (
-      paymentMethod === "Credit / Debit Card" &&
-      (!cardNumber || !expiryDate || !cvv)
-    ) {
-      toast.error("Please enter your card details.");
-      return;
-    }
-
-    // Check EasyPaisa / JazzCash number
-    if (
-      (paymentMethod === "EasyPaisa" ||
-        paymentMethod === "JazzCash") &&
-      !mobileNumber
-    ) {
-      toast.error("Please enter your mobile number.");
-      return;
-    }
-
     try {
-      setPlacingOrder(true);
+      setLoading(true);
 
-      // Send order to our backend API
+      // Check login
+      const authResponse = await fetch("/api/auth/me", {
+        cache: "no-store",
+      });
+
+      if (!authResponse.ok) {
+        toast.error("Please login to place your order.");
+        router.push("/login");
+        return;
+      }
+
+      // Create order
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          total,
-          paymentMethod,
-          items: cart,
+          total: totalPrice,
+          paymentMethod: "Cash on Delivery",
+          items: cart.map((item) => ({
+            id: item.id,
+            price: item.price,
+            quantity: item.quantity,
+          })),
         }),
       });
 
       const data = await response.json();
 
-      console.log("ORDER STATUS:", response.status);
-      console.log("ORDER RESPONSE:", data);
-
-      // If backend returns an error
       if (!response.ok) {
-        toast.error(data.error || "Failed to place order.");
+        toast.error(
+          data.error || "Failed to place your order."
+        );
         return;
       }
 
-      // Order was successfully saved in Neon
+      // Clear cart only after successful order
       clearCart();
-
-      // Also remove the saved cart from localStorage
-      localStorage.removeItem("cart");
 
       toast.success("Order placed successfully!");
 
-      // Go to success page
       router.push("/orderSucess");
     } catch (error) {
-      console.error("ORDER ERROR:", error);
+      console.error("CHECKOUT ERROR:", error);
 
       toast.error(
-        "Something went wrong while placing your order."
+        "Something went wrong. Please try again."
       );
     } finally {
-      setPlacingOrder(false);
+      setLoading(false);
     }
   };
 
-  // While checking login
-  if (checkingAuth) {
+  if (cart.length === 0) {
     return (
-      <main className="flex min-h-[70vh] items-center justify-center">
-        <p className="text-lg text-gray-600">
-          Checking login...
-        </p>
+      <main className="mx-auto max-w-7xl px-6 py-16">
+        <div className="rounded-xl border bg-white p-10 text-center shadow-sm">
+          <h1 className="text-3xl font-bold">
+            Your Cart Is Empty
+          </h1>
+
+          <p className="mt-3 text-gray-500">
+            Add some products before proceeding to checkout.
+          </p>
+
+          <Link
+            href="/products"
+            className="mt-6 inline-block rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"
+          >
+            Continue Shopping
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="mb-8 text-3xl font-bold">
+    <main className="mx-auto max-w-7xl px-6 py-10">
+      <h1 className="mb-8 text-4xl font-bold">
         Checkout
       </h1>
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Products */}
+        <section className="lg:col-span-2">
+          <div className="rounded-xl border bg-white p-6 shadow-sm">
+            <h2 className="mb-6 text-2xl font-bold">
+              Your Order
+            </h2>
 
-        {/* Customer Details */}
-        <div className="rounded-lg border p-6">
-          <h2 className="mb-4 text-xl font-semibold">
-            Customer Details
-          </h2>
-
-          <div className="space-y-4">
-
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded border p-3"
-            />
-
-            <input
-              type="tel"
-              placeholder="Phone Number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded border p-3"
-            />
-
-            <input
-              type="text"
-              placeholder="City"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full rounded border p-3"
-            />
-
-            <textarea
-              placeholder="Address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full rounded border p-3"
-              rows={4}
-            />
-
-            {/* Payment Methods */}
-            <div className="rounded-lg border p-4">
-              <h3 className="mb-4 font-semibold">
-                Payment Method
-              </h3>
-
-              <div className="space-y-3">
-
-                {/* Cash on Delivery */}
-                <label className="flex cursor-pointer items-center gap-3">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="Cash on Delivery"
-                    checked={
-                      paymentMethod === "Cash on Delivery"
-                    }
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value)
-                    }
-                  />
-
-                  <span>💵 Cash on Delivery</span>
-                </label>
-
-                {/* EasyPaisa */}
-                <label className="flex cursor-pointer items-center gap-3">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="EasyPaisa"
-                    checked={paymentMethod === "EasyPaisa"}
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value)
-                    }
-                  />
-
-                  <span>📱 EasyPaisa</span>
-                </label>
-
-                {/* JazzCash */}
-                <label className="flex cursor-pointer items-center gap-3">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="JazzCash"
-                    checked={paymentMethod === "JazzCash"}
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value)
-                    }
-                  />
-
-                  <span>📱 JazzCash</span>
-                </label>
-
-                {/* Card */}
-                <label className="flex cursor-pointer items-center gap-3">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="Credit / Debit Card"
-                    checked={
-                      paymentMethod ===
-                      "Credit / Debit Card"
-                    }
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value)
-                    }
-                  />
-
-                  <span>💳 Credit / Debit Card</span>
-                </label>
-
-              </div>
-
-              {/* Card Payment */}
-              {paymentMethod === "Credit / Debit Card" && (
-                <div className="mt-4 space-y-4">
-
-                  <input
-                    type="text"
-                    placeholder="Card Number"
-                    value={cardNumber}
-                    onChange={(e) =>
-                      setCardNumber(e.target.value)
-                    }
-                    className="w-full rounded border p-3"
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
-
-                    <input
-                      type="text"
-                      placeholder="MM/YY"
-                      value={expiryDate}
-                      onChange={(e) =>
-                        setExpiryDate(e.target.value)
-                      }
-                      className="rounded border p-3"
-                    />
-
-                    <input
-                      type="password"
-                      placeholder="CVV"
-                      value={cvv}
-                      onChange={(e) =>
-                        setCvv(e.target.value)
-                      }
-                      className="rounded border p-3"
-                    />
-
-                  </div>
-
-                </div>
-              )}
-
-              {/* EasyPaisa / JazzCash */}
-              {(paymentMethod === "EasyPaisa" ||
-                paymentMethod === "JazzCash") && (
-                <div className="mt-4">
-
-                  <input
-                    type="tel"
-                    placeholder="Mobile Number"
-                    value={mobileNumber}
-                    onChange={(e) =>
-                      setMobileNumber(e.target.value)
-                    }
-                    className="w-full rounded border p-3"
-                  />
-
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Order Summary */}
-        <div className="rounded-lg border p-6">
-          <h2 className="mb-4 text-xl font-semibold">
-            Order Summary
-          </h2>
-
-          {cart.length === 0 ? (
-            <p className="text-gray-500">
-              Your cart is empty.
-            </p>
-          ) : (
-            <div className="space-y-3">
-
+            <div className="space-y-5">
               {cart.map((item) => (
                 <div
                   key={item.id}
-                  className="flex justify-between border-b pb-2"
+                  className="flex items-center gap-4 border-b pb-5 last:border-b-0 last:pb-0"
                 >
-                  <span>
-                    {item.name} × {item.quantity}
-                  </span>
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
 
-                  <span>
-                    Rs. {item.price * item.quantity}
-                  </span>
+                  <div className="flex-1">
+                    <h3 className="font-semibold">
+                      {item.name}
+                    </h3>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      Quantity: {item.quantity}
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      Rs. {item.price} each
+                    </p>
+                  </div>
+
+                  <p className="font-bold">
+                    Rs.{" "}
+                    {(
+                      item.price * item.quantity
+                    ).toFixed(2)}
+                  </p>
                 </div>
               ))}
-
             </div>
-          )}
-
-          <hr className="my-6" />
-
-          <div className="flex justify-between text-xl font-bold">
-            <span>Total</span>
-
-            <span>
-              Rs. {total}
-            </span>
           </div>
+        </section>
 
-          <button
-            onClick={handleOrder}
-            disabled={placingOrder || cart.length === 0}
-            className="mt-6 w-full rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {placingOrder
-              ? "Placing Order..."
-              : "Place Order"}
-          </button>
-        </div>
+        {/* Order Summary */}
+        <aside>
+          <div className="rounded-xl border bg-white p-6 shadow-sm">
+            <h2 className="mb-6 text-2xl font-bold">
+              Order Summary
+            </h2>
+
+            <div className="space-y-4">
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal</span>
+                <span>
+                  Rs. {totalPrice.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex justify-between text-gray-600">
+                <span>Delivery</span>
+                <span>Free</span>
+              </div>
+
+              <div className="border-t pt-4">
+                <div className="flex justify-between">
+                  <span className="text-lg font-semibold">
+                    Total
+                  </span>
+
+                  <span className="text-2xl font-bold text-blue-600">
+                    Rs. {totalPrice.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className="mt-8">
+              <h3 className="mb-3 font-semibold">
+                Payment Method
+              </h3>
+
+              <div className="rounded-lg border-2 border-blue-600 bg-blue-50 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-blue-600">
+                    <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                  </div>
+
+                  <div>
+                    <p className="font-semibold">
+                      Cash on Delivery
+                    </p>
+
+                    <p className="text-sm text-gray-600">
+                      Pay when your order is delivered.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Place Order */}
+            <button
+              type="button"
+              onClick={handlePlaceOrder}
+              disabled={loading}
+              className={`mt-8 w-full rounded-lg px-6 py-3 font-semibold text-white transition ${
+                loading
+                  ? "cursor-not-allowed bg-gray-400"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {loading
+                ? "Placing Order..."
+                : "Place Order"}
+            </button>
+
+            <Link
+              href="/cart"
+              className="mt-3 block text-center text-sm font-medium text-gray-600 hover:text-blue-600"
+            >
+              ← Back to Cart
+            </Link>
+          </div>
+        </aside>
       </div>
     </main>
   );
 }
+
