@@ -13,6 +13,10 @@ export default function CheckoutPage() {
 
   const [loading, setLoading] = useState(false);
 
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+
   const totalPrice = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -24,21 +28,24 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!customerName.trim()) {
+      toast.error("Please enter your name.");
+      return;
+    }
+
+    if (!customerPhone.trim()) {
+      toast.error("Please enter your phone number.");
+      return;
+    }
+
+    if (!customerAddress.trim()) {
+      toast.error("Please enter your delivery address.");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      // Check login
-      const authResponse = await fetch("/api/auth/me", {
-        cache: "no-store",
-      });
-
-      if (!authResponse.ok) {
-        toast.error("Please login to place your order.");
-        router.push("/login");
-        return;
-      }
-
-      // Create order
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
@@ -47,6 +54,11 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           total: totalPrice,
           paymentMethod: "Cash on Delivery",
+
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          customerAddress: customerAddress.trim(),
+
           items: cart.map((item) => ({
             id: item.id,
             price: item.price,
@@ -111,9 +123,87 @@ export default function CheckoutPage() {
       </h1>
 
       <div className="grid gap-8 lg:grid-cols-3">
-        {/* Products */}
+
+        {/* Customer Information */}
         <section className="lg:col-span-2">
           <div className="rounded-xl border bg-white p-6 shadow-sm">
+            <h2 className="mb-6 text-2xl font-bold">
+              Delivery Information
+            </h2>
+
+            <div className="space-y-5">
+
+              {/* Name */}
+              <div>
+                <label
+                  htmlFor="customerName"
+                  className="mb-2 block text-sm font-semibold"
+                >
+                  Full Name
+                </label>
+
+                <input
+                  id="customerName"
+                  type="text"
+                  value={customerName}
+                  onChange={(e) =>
+                    setCustomerName(e.target.value)
+                  }
+                  placeholder="Enter your full name"
+                  className="w-full rounded-lg border px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label
+                  htmlFor="customerPhone"
+                  className="mb-2 block text-sm font-semibold"
+                >
+                  Phone Number
+                </label>
+
+                <input
+                  id="customerPhone"
+                  type="tel"
+                  value={customerPhone}
+                  onChange={(e) =>
+                    setCustomerPhone(e.target.value)
+                  }
+                  placeholder="03XX XXXXXXX"
+                  className="w-full rounded-lg border px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Address */}
+              <div>
+                <label
+                  htmlFor="customerAddress"
+                  className="mb-2 block text-sm font-semibold"
+                >
+                  Delivery Address
+                </label>
+
+                <textarea
+                  id="customerAddress"
+                  value={customerAddress}
+                  onChange={(e) =>
+                    setCustomerAddress(e.target.value)
+                  }
+                  placeholder="Enter your complete delivery address"
+                  rows={4}
+                  className="w-full resize-none rounded-lg border px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  disabled={loading}
+                />
+              </div>
+
+            </div>
+          </div>
+
+          {/* Products */}
+          <div className="mt-8 rounded-xl border bg-white p-6 shadow-sm">
             <h2 className="mb-6 text-2xl font-bold">
               Your Order
             </h2>
@@ -169,6 +259,7 @@ export default function CheckoutPage() {
             <div className="space-y-4">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
+
                 <span>
                   Rs. {totalPrice.toFixed(2)}
                 </span>
@@ -176,6 +267,7 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between text-gray-600">
                 <span>Delivery</span>
+
                 <span>Free</span>
               </div>
 
@@ -245,4 +337,3 @@ export default function CheckoutPage() {
     </main>
   );
 }
-

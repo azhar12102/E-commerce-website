@@ -1,72 +1,43 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
 
-// CREATE ORDER
+// CREATE ORDER - GUEST CHECKOUT
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Please login to place an order" },
-        { status: 401 }
-      );
-    }
-
-    const session = await verifySession(token);
-
-    if (!session) {
-      return NextResponse.json(
-        { error: "Session expired. Please login again." },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
 
-    const { total, paymentMethod, items } = body;
+    const {
+      total,
+      paymentMethod,
+      items,
+      customerName,
+      customerPhone,
+      customerAddress,
+    } = body;
 
+    // Validate order data
     if (
       total === undefined ||
       !paymentMethod ||
+      paymentMethod !== "Cash on Delivery" ||
       !items ||
       !Array.isArray(items) ||
-      items.length === 0
+      items.length === 0 ||
+      !customerName ||
+      !customerPhone ||
+      !customerAddress
     ) {
       return NextResponse.json(
-        { error: "Invalid order data" },
+        {
+          error:
+            "Please provide customer name, phone, address, and valid order details.",
+        },
         { status: 400 }
       );
     }
 
-    // Check user
-    const user = await prisma.user.findUnique({
-      where: {
-        id: session.userId,
-      },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    /*
-     * Use a transaction so:
-     *
-     * 1. Stock is checked
-     * 2. Order is created
-     * 3. Stock is reduced
-     *
-     * If something fails, everything is rolled back.
-     */
     const order = await prisma.$transaction(async (tx) => {
-      // Check every product before creating the order
+      // Check every product and stock
       for (const item of items) {
         const productId = Number(item.id);
         const quantity = Number(item.quantity);
@@ -100,12 +71,16 @@ export async function POST(request: Request) {
         }
       }
 
-      // Create the order
+      // Create guest order
       const newOrder = await tx.order.create({
         data: {
-          userId: session.userId,
           total: Number(total),
-          paymentMethod,
+          paymentMethod: "Cash on Delivery",
+          customerName: String(customerName).trim(),
+          customerPhone: String(customerPhone).trim(),
+          customerAddress: String(customerAddress).trim(),
+
+          // Guest order
 
           items: {
             create: items.map(
@@ -127,7 +102,7 @@ export async function POST(request: Request) {
         },
       });
 
-      // Reduce stock
+      // Reduce product stock
       for (const item of items) {
         await tx.product.update({
           where: {
@@ -146,7 +121,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Order created successfully",
+        message: "Order placed successfully",
         order,
       },
       { status: 201 }
@@ -157,14 +132,14 @@ export async function POST(request: Request) {
     if (error instanceof Error) {
       if (error.message === "INVALID_ITEM") {
         return NextResponse.json(
-          { error: "Invalid product quantity" },
+          { error: "Invalid product quantity." },
           { status: 400 }
         );
       }
 
       if (error.message.startsWith("PRODUCT_NOT_FOUND:")) {
         return NextResponse.json(
-          { error: "One of the products no longer exists" },
+          { error: "One of the products no longer exists." },
           { status: 404 }
         );
       }
@@ -174,7 +149,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(
           {
-            error: `${productName} is out of stock`,
+            error: `${productName} is out of stock.`,
           },
           { status: 400 }
         );
@@ -187,7 +162,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(
           {
-            error: `${productName} only has ${availableStock} item(s) available`,
+            error: `${productName} only has ${availableStock} item(s) available.`,
           },
           { status: 400 }
         );
@@ -195,43 +170,23 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Something went wrong while creating the order" },
+      {
+        error: "Something went wrong while creating the order.",
+      },
       { status: 500 }
     );
   }
 }
 
-// GET USER ORDERS
+// GET ALL ORDERS
+// Currently returns all orders.
+// Later we can make this admin-only.
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Please login to view your orders" },
-        { status: 401 }
-      );
-    }
-
-    const session = await verifySession(token);
-
-    if (!session) {
-      return NextResponse.json(
-        { error: "Session expired. Please login again." },
-        { status: 401 }
-      );
-    }
-
     const orders = await prisma.order.findMany({
-      where: {
-        userId: session.userId,
-      },
-
       orderBy: {
         createdAt: "desc",
       },
-
       include: {
         items: {
           include: {
@@ -248,7 +203,9 @@ export async function GET() {
     console.error("GET ORDERS ERROR:", error);
 
     return NextResponse.json(
-      { error: "Failed to fetch orders" },
+      {
+        error: "Failed to fetch orders.",
+      },
       { status: 500 }
     );
   }

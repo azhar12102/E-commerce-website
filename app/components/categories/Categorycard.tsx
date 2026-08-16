@@ -5,7 +5,7 @@ import Link from "next/link";
 
 type Props = {
   name: string;
-  image: string;
+  image: string | null;
   productCount: number;
 };
 
@@ -20,12 +20,18 @@ export default function CategoryCard({
       className="group overflow-hidden rounded-xl border bg-white shadow transition-all hover:-translate-y-2 hover:shadow-xl"
     >
       <div className="relative h-56 w-full">
-        <Image
-          src={image}
-          alt={name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-110"
-        />
+        {image ? (
+          <Image
+            src={image}
+            alt={name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-400">
+            No Image
+          </div>
+        )}
       </div>
 
       <div className="p-5 text-center">
@@ -37,7 +43,10 @@ export default function CategoryCard({
           {productCount} Products
         </p>
 
-        <button className="mt-4 rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700">
+        <button
+          type="button"
+          className="mt-4 rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
+        >
           Browse Category
         </button>
       </div>

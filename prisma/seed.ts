@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Images } from "lucide-react";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -16,46 +17,63 @@ async function main() {
   // Categories
   const phoneCases = await prisma.category.upsert({
     where: { slug: "phone-cases" },
-    update: {},
+    update: {
+        image: "/images/categories/phonecase.webp",
+    },
     create: {
       name: "Phone Cases",
       slug: "phone-cases",
+        image: "/images/categories/phonecase.webp",
+      
     },
   });
 
   const chargers = await prisma.category.upsert({
     where: { slug: "chargers" },
-    update: {},
+    update: {
+      image:"/images/categories/charger.jpg",
+    },
     create: {
       name: "Chargers",
       slug: "chargers",
+      image:"/images/categories/charger.jpg",
+
     },
   });
 
   const earbuds = await prisma.category.upsert({
     where: { slug: "earbuds" },
-    update: {},
+    update: {
+      image :"/images/categories/earbuds.webp",
+    },
     create: {
       name: "Earbuds",
       slug: "earbuds",
+      image:"/images/categories/earbuds.webp",
     },
   });
 
   const powerBanks = await prisma.category.upsert({
     where: { slug: "power-banks" },
-    update: {},
+    update: {
+      image :"/images/categories/powerbank.webp",
+    },
     create: {
       name: "Power Banks",
       slug: "power-banks",
+      image:"/images/categories/powerbank.webp",
     },
   });
 
   const smartWatches = await prisma.category.upsert({
     where: { slug: "smart-watches" },
-    update: {},
+    update: {
+      image:"/images/categories/smart-watch.webp",
+    },
     create: {
       name: "Smart Watches",
       slug: "smart-watches",
+      image :"/images/categories/smart-watch.webp",
     },
   });
 
