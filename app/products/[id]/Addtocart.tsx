@@ -2,7 +2,6 @@
 
 import toast from "react-hot-toast";
 import { useCart } from "@/app/context/cartcontext";
-import { useRouter } from "next/navigation";
 
 type Props = {
   id: number;
@@ -20,79 +19,42 @@ export default function AddToCartButton({
   stock,
 }: Props) {
   const { addToCart, cart } = useCart();
-  const router = useRouter();
 
-  const handleAddToCart = async () => {
-    try {
-      // Check stock first
-      if (stock <= 0) {
-        toast.error("This product is out of stock.");
-        return;
-      }
-
-      // Check whether the user is logged in
-      const response = await fetch("/api/auth/me", {
-        cache: "no-store",
-      });
-
-      // User is not logged in
-      if (!response.ok) {
-        const toastId = toast.error(
-          "Please login to buy this product."
-        );
-
-        setTimeout(() => {
-          toast.dismiss(toastId);
-          router.push("/login");
-        }, 1200);
-
-        return;
-      }
-
-      // Check existing quantity in cart
-      const existingItem = cart.find(
-        (item) => item.id === id
-      );
-
-      const currentQuantity = existingItem
-        ? existingItem.quantity
-        : 0;
-
-      // Don't allow more than available stock
-      if (currentQuantity >= stock) {
-        toast.error(
-          `Only ${stock} item${
-            stock === 1 ? "" : "s"
-          } available.`
-        );
-        return;
-      }
-
-      // Add product to cart
-      addToCart({
-        id,
-        name,
-        image,
-        price,
-        stock,
-      });
-
-      toast.success(`${name} added to cart!`);
-    } catch (error) {
-      console.error(
-        "Authentication check failed:",
-        error
-      );
-
-      const toastId = toast.error(
-        "Please login to continue."
-      );
-
-      setTimeout(() => {
-        toast.dismiss(toastId);
-        router.push("/login");
-      }, 1200);
+  const handleAddToCart = () => {
+    // Check if product is out of stock
+    if (stock <= 0) {
+      toast.error("This product is out of stock.");
+      return;
     }
+
+    // Check if product already exists in cart
+    const existingItem = cart.find(
+      (item) => item.id === id
+    );
+
+    const currentQuantity = existingItem
+      ? existingItem.quantity
+      : 0;
+
+    // Don't allow quantity greater than available stock
+    if (currentQuantity >= stock) {
+      toast.error(
+        `Only ${stock} item${stock === 1 ? "" : "s"} available.`
+      );
+      return;
+    }
+
+    // Add product to cart
+    addToCart({
+      id,
+      name,
+      image,
+      price,
+      stock,
+    });
+
+    // Success notification
+    toast.success(`${name} added to cart!`);
   };
 
   return (

@@ -55,6 +55,7 @@ export async function GET() {
     }
 
     // Get all orders
+    // user is optional because guest orders do not have a user
     const orders = await prisma.order.findMany({
       orderBy: {
         createdAt: "desc",
@@ -77,14 +78,30 @@ export async function GET() {
       },
     });
 
+    // Format orders so both guest and logged-in orders
+    // have consistent customer information
+    const formattedOrders = orders.map((order) => ({
+      ...order,
+
+      customer: {
+        name: order.user?.name || order.customerName,
+        email: order.user?.email || "Guest Customer",
+        phone: order.user?.phone || order.customerPhone,
+        address:
+          order.user?.address || order.customerAddress,
+      },
+    }));
+
     return NextResponse.json({
-      orders,
+      orders: formattedOrders,
     });
   } catch (error) {
     console.error("ADMIN ORDERS ERROR:", error);
 
     return NextResponse.json(
-      { error: "Failed to fetch admin orders" },
+      {
+        error: "Failed to fetch admin orders",
+      },
       { status: 500 }
     );
   }

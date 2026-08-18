@@ -13,6 +13,7 @@ export default function CheckoutPage() {
 
   const [loading, setLoading] = useState(false);
 
+  // Customer information
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
@@ -28,6 +29,7 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Validate customer information
     if (!customerName.trim()) {
       toast.error("Please enter your name.");
       return;
@@ -46,6 +48,7 @@ export default function CheckoutPage() {
     try {
       setLoading(true);
 
+      // Create guest order
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
@@ -123,21 +126,20 @@ export default function CheckoutPage() {
       </h1>
 
       <div className="grid gap-8 lg:grid-cols-3">
-
-        {/* Customer Information */}
-        <section className="lg:col-span-2">
+        {/* Left Section */}
+        <section className="space-y-8 lg:col-span-2">
+          {/* Customer Information */}
           <div className="rounded-xl border bg-white p-6 shadow-sm">
             <h2 className="mb-6 text-2xl font-bold">
               Delivery Information
             </h2>
 
             <div className="space-y-5">
-
               {/* Name */}
               <div>
                 <label
                   htmlFor="customerName"
-                  className="mb-2 block text-sm font-semibold"
+                  className="mb-2 block text-sm font-semibold text-gray-700"
                 >
                   Full Name
                 </label>
@@ -150,8 +152,8 @@ export default function CheckoutPage() {
                     setCustomerName(e.target.value)
                   }
                   placeholder="Enter your full name"
-                  className="w-full rounded-lg border px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   disabled={loading}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100"
                 />
               </div>
 
@@ -159,7 +161,7 @@ export default function CheckoutPage() {
               <div>
                 <label
                   htmlFor="customerPhone"
-                  className="mb-2 block text-sm font-semibold"
+                  className="mb-2 block text-sm font-semibold text-gray-700"
                 >
                   Phone Number
                 </label>
@@ -171,9 +173,9 @@ export default function CheckoutPage() {
                   onChange={(e) =>
                     setCustomerPhone(e.target.value)
                   }
-                  placeholder="03XX XXXXXXX"
-                  className="w-full rounded-lg border px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  placeholder="03XX-XXXXXXX"
                   disabled={loading}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100"
                 />
               </div>
 
@@ -181,7 +183,7 @@ export default function CheckoutPage() {
               <div>
                 <label
                   htmlFor="customerAddress"
-                  className="mb-2 block text-sm font-semibold"
+                  className="mb-2 block text-sm font-semibold text-gray-700"
                 >
                   Delivery Address
                 </label>
@@ -194,16 +196,15 @@ export default function CheckoutPage() {
                   }
                   placeholder="Enter your complete delivery address"
                   rows={4}
-                  className="w-full resize-none rounded-lg border px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   disabled={loading}
+                  className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100"
                 />
               </div>
-
             </div>
           </div>
 
           {/* Products */}
-          <div className="mt-8 rounded-xl border bg-white p-6 shadow-sm">
+          <div className="rounded-xl border bg-white p-6 shadow-sm">
             <h2 className="mb-6 text-2xl font-bold">
               Your Order
             </h2>
