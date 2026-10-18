@@ -112,7 +112,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/">
           <Image
-            src="/images/logo/Mobile-verse-new-logo.jpg"
+            src="/images/logo/mobile verse logo website.jpg"
             alt="MobileVerse Logo"
             width={180}
             height={55}
